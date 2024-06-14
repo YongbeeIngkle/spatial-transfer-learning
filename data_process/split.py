@@ -186,7 +186,10 @@ class CaliforniaSplitLdfInputCompose:
     def save(self, number_of_splits: int, source_type: str):
         train_test_data_id = get_in_clusters(self.compose_data_path, self.target_station_num, number_of_splits)
         for split_id in train_test_data_id.keys():
-            file_name = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} dataset.npz"
+            if self.ldf_a:
+                file_name = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} ldf_a dataset.npz"
+            else:
+                file_name = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} dataset.npz"
             train_test_split_id = train_test_data_id[split_id]
             source_dt, train_target_dt, valid_dt = self._split_dataset(train_test_split_id, source_type)
             allocate_input, allocate_label = self._allocate_stations(source_dt, train_target_dt, valid_dt)
@@ -204,6 +207,7 @@ class LimaSplitLdfInputCompose:
         self.target_station_num = target_station_num
         self.station_num = station_num
         self.ldf_a = ldf_a
+        self.compose_data_path = country_compose_data_path["lima"]
 
     def _split_dataset(self, train_test_split_coord: dict, source_type: str):
         monitoring_usa_data = pd.read_csv(monitoring_data_path)[transfer_tags["lima"]["source"]]
@@ -221,10 +225,12 @@ class LimaSplitLdfInputCompose:
         return all_inputs, all_labels
 
     def save(self, number_of_splits: int, source_type: str):
-        lima_data_path = country_compose_data_path["lima"]
-        train_test_data_id = get_in_clusters(lima_data_path, self.target_station_num, number_of_splits)
+        train_test_data_id = get_in_clusters(self.compose_data_path, self.target_station_num, number_of_splits)
         for split_id in train_test_data_id.keys():
-            file_name = f"{lima_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} dataset.npz"
+            if self.ldf_a:
+                file_name = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} ldf_a dataset.npz"
+            else:
+                file_name = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{source_type} nearest{self.station_num} dataset.npz"
             train_test_split_id = train_test_data_id[split_id]
             source_dt, train_target_dt, valid_dt = self._split_dataset(train_test_split_id, source_type)
             allocate_input, allocate_label = self._allocate_stations(source_dt, train_target_dt, valid_dt)

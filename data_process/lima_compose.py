@@ -54,7 +54,7 @@ class LimaLdfInputCompose:
             source_train_input["valid"] = allocate_input["valid"]
             source_train_label["valid"] = allocate_label["valid"]
             print(f"train_num:{date_file} complete")
-        source_train_file_name = f"{country_ldf_data_path[self.country_name]}/source-train nearest{self.station_num} dataset.npz"
+        source_train_file_name = f"{country_ldf_data_path["lima"]}/source-train nearest{self.station_num} dataset.npz"
         np.savez(source_train_file_name, 
                  source_input = np.vstack(source_train_input["source"]), 
                  train_target_input = np.vstack(source_train_input["train_target"]), 

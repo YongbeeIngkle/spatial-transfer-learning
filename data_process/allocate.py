@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from data_process.tag_info import transfer_spatial_coord_tags, transfer_ldf_input_tags
+from data_process.tag_info import transfer_spatial_coord_tags, transfer_ldf_input_tags, ldf_a_tags
 from data_process.distance import create_distance_matrix, create_distance_pairwise
 
 def _normalize_data(dataset: pd.DataFrame, mean: pd.Series, std: pd.Series):
@@ -63,9 +63,11 @@ class LdfInputCompose:
         self.train_target_data = train_target_data
         self.valid_data = valid_data
         self.station_num = station_num
-        self.ldf_input_tags = transfer_ldf_input_tags[country_name]
+        self.ldf_input_tags = transfer_ldf_input_tags[country_name][:]
         self.measure_tags = transfer_spatial_coord_tags[country_name]
         self.ldf_a = ldf_a
+        if ldf_a:
+            self.ldf_input_tags.remove("gc_aod")
         self._compute_train_statistics()
 
     def _compute_train_statistics(self):
@@ -151,8 +153,14 @@ class LdfInputCompose:
             date_source, date_train_target, date_valid = self._extract_date_data(date, estimating)
             if len(date_source) < 1:
                 continue
+            if self.ldf_a:
+                source_label, train_target_label, valid_label = date_source[ldf_a_tags], date_train_target[ldf_a_tags], date_valid[ldf_a_tags]
+                date_source = date_source.drop(columns=['gc_aod'])
+                date_train_target = date_train_target.drop(columns=['gc_aod'])
+                date_valid = date_valid.drop(columns=['gc_aod'])
+            else:
+                source_label, train_target_label, valid_label = date_source[["pm25_value"]], date_train_target[["pm25_value"]], date_valid[["pm25_value"]]
             source_input, train_target_input, valid_input = self._compose_ldf_input(date_source, date_train_target, date_valid)
-            source_label, train_target_label, valid_label = date_source["pm25_value"], date_train_target["pm25_value"], date_valid["pm25_value"]
             all_source_data.append(source_input)
             all_source_label.append(source_label)
             if len(train_target_input) > 0:
@@ -165,9 +173,9 @@ class LdfInputCompose:
         all_source_data = np.vstack(all_source_data)
         all_train_target_data = np.vstack(all_train_target_data)
         all_valid_data = np.vstack(all_valid_data)
-        all_source_label = np.hstack(all_source_label)
-        all_train_target_label = np.hstack(all_train_target_label)
-        all_valid_label = np.hstack(all_valid_label)
+        all_source_label = np.vstack(all_source_label)
+        all_train_target_label = np.vstack(all_train_target_label)
+        all_valid_label = np.vstack(all_valid_label)
         composed_inputs = {
             "source":all_source_data, 
             "train_target":all_train_target_data, 
