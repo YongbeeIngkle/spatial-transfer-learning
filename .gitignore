@@ -1,0 +1,10 @@
+*.pyc
+.vscode
+.DS_Store
+adapt/
+result/
+figures/
+trained models/
+paper_plots/
+data_process/data_path.py
+adapt.zip
