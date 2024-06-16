@@ -24,8 +24,8 @@ class CaliforniaSourcetargetId:
         """
         target_data = whole_data.loc[whole_data["rid"] == self.cluster_id]
         source_data = whole_data.loc[whole_data["rid"] != self.cluster_id]
-        target_cmaqs, target_count = np.unique(target_data[["cmaq_x", "cmaq_y"]], axis=0, return_counts=True)
-        source_cmaqs = np.unique(source_data[["cmaq_x", "cmaq_y"]], axis=0)
+        target_cmaqs, target_count = np.unique(target_data["cmaq_id"], return_counts=True)
+        source_cmaqs = np.unique(source_data["cmaq_id"])
         cmaq_set = {"source": source_cmaqs, "target": target_cmaqs}
         return cmaq_set, target_count
         
@@ -37,17 +37,16 @@ class CaliforniaSourcetargetId:
         source_target_set, target_count = self._source_target_split(monitoring_whole_data)
         return source_target_set, target_count
     
-    def _split_data_coord(self, cmaq_coords: np.ndarray, train_num: int, split_num: int):
+    def _split_data_coord(self, cmaq_ids: np.ndarray, train_num: int, split_num: int):
         """
         Split coordinate data into train-test dictionary.
         """
         np.random.seed(1000)
-        cmaq_ids = np.arange(len(cmaq_coords))
         set_dataset = {}
         for set_id in range(split_num):
-            train_cmaq_ids = np.random.choice(cmaq_ids, train_num, replace=False)
-            test_cmaq_ids = np.array([i for i in cmaq_ids if i not in train_cmaq_ids])
-            set_dataset[set_id] = {"train": cmaq_coords[train_cmaq_ids], "test": cmaq_coords[test_cmaq_ids]}
+            train_cmaqs = np.random.choice(cmaq_ids, train_num, replace=False)
+            test_cmaqs = np.array([i for i in cmaq_ids if i not in train_cmaqs])
+            set_dataset[set_id] = {"train": train_cmaqs, "test": test_cmaqs}
         return set_dataset
     
     def _save_source_cmaqs(self, source_coord):
@@ -169,18 +168,18 @@ class CaliforniaSplitLdfInputCompose:
         self.ldf_a = ldf_a
         self.compose_data_path = country_compose_data_path["california"]
 
-    def _split_dataset(self, train_test_split_cmaq: dict, source_type: str):
+    def _split_dataset(self, train_test_split_id: dict, source_type: str):
         monitoring_whole_data = pd.read_csv(monitoring_data_path)[usa_whole_tags]
-        source_cmaq, train_target_cmaq, valid_cmaq = train_test_split_cmaq['train_out_cluster'], train_test_split_cmaq['train_in_cluster'], train_test_split_cmaq['test_cluster']
-        source_data = monitoring_whole_data.loc[np.all(np.isin(monitoring_whole_data[["cmaq_x", "cmaq_y"]], source_cmaq), axis=1)]
-        train_target_data = monitoring_whole_data.loc[np.all(np.isin(monitoring_whole_data[["cmaq_x", "cmaq_y"]], train_target_cmaq), axis=1)]
-        valid_data = monitoring_whole_data.loc[np.all(np.isin(monitoring_whole_data[["cmaq_x", "cmaq_y"]], valid_cmaq), axis=1)]
+        source_index, train_target_index, valid_index = train_test_split_id['train_out_cluster'], train_test_split_id['train_in_cluster'], train_test_split_id['test_cluster']
+        source_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], source_index)]
+        train_target_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], train_target_index)]
+        valid_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], valid_index)]
         source_data = source_select(source_data, source_type)
         return source_data, train_target_data, valid_data
-    
+
     def _allocate_stations(self, source_dt: pd.DataFrame, train_target_dt: pd.DataFrame, valid_dt: pd.DataFrame):
         station_allocate = LdfInputCompose(source_dt, train_target_dt, valid_dt, self.station_num, "california", self.ldf_a)
-        all_inputs, all_labels = station_allocate.allocate_all(False)
+        all_inputs, all_labels = station_allocate.allocate_all(True)
         return all_inputs, all_labels
 
     def save(self, number_of_splits: int, source_type: str):

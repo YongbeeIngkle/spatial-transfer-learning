@@ -74,14 +74,11 @@ class LdfInputCompose:
         train_data = pd.concat([self.source_data, self.train_target_data])
         self.train_mean, self.train_std = train_data.mean(), train_data.std()
 
-    def _extract_date_data(self, date: str, estimating: bool):
-        if estimating:
-            date_source_data = self.source_data[self.source_data["day"]==date]
-            date_train_target_data = self.train_target_data[self.train_target_data["day"]==date]
-            date_valid_data = self.valid_data.loc[self.valid_data["pm25_value"].isnull()]
-            date_source_data.index = range(len(date_source_data))
-            date_train_target_data.index = range(len(date_source_data), len(date_source_data)+len(date_train_target_data))
-            date_valid_data.index = range(len(date_source_data)+len(date_train_target_data), len(date_source_data)+len(date_train_target_data)+len(date_valid_data))
+    def _extract_date_data(self, date: str, same_territory: bool):
+        if same_territory:
+            date_source_data = self.source_data[self.source_data["day"]==date].set_index("cmaq_id", drop=True)
+            date_train_target_data = self.train_target_data[self.train_target_data["day"]==date].set_index("cmaq_id", drop=True)
+            date_valid_data = self.valid_data.loc[self.valid_data["day"]==date].set_index("cmaq_id", drop=True)
         else:
             date_valid_data = self.valid_data.loc[self.valid_data["day"]==date]
             date_train_target_data = self.train_target_data.loc[self.train_target_data["day"]==date]
@@ -123,10 +120,6 @@ class LdfInputCompose:
         stack_station_data = _spatially_weight(stack_station_data, self.ldf_input_tags, self.measure_tags)
 
         ### Check Sanity of composed dataset.
-        if len([t for t in compute_input_edit.columns if t not in self.ldf_input_tags]) > 0:
-            raise Exception("The tags should be same as LDF input tags.")
-        if len([t for t in train_input.columns if t not in self.ldf_input_tags]) > 0:
-            raise Exception("The tags should be same as LDF input tags.")
         if stack_station_data.shape[1] != len(self.ldf_input_tags):
             raise Exception("The tags should be same as LDF input tags.")
         return stack_station_data
@@ -144,13 +137,13 @@ class LdfInputCompose:
             train_target_ldf_input = []
         return source_ldf_input, train_target_ldf_input, valid_ldf_input
 
-    def allocate_all(self, estimating: bool):
+    def allocate_all(self, same_territory: bool):
         all_dates = np.unique(self.valid_data["day"])
         all_source_data, all_train_target_data, all_valid_data = [], [], []
         all_source_label, all_train_target_label, all_valid_label = [], [], []
         for date_num, date in enumerate(all_dates):
             print(f"date {date_num}")
-            date_source, date_train_target, date_valid = self._extract_date_data(date, estimating)
+            date_source, date_train_target, date_valid = self._extract_date_data(date, same_territory)
             if len(date_source) < 1:
                 continue
             if self.ldf_a:

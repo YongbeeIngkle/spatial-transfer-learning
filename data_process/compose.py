@@ -3,7 +3,7 @@ import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 import torch
 from data_process.distance import create_distance_pairwise
-from data_process.tag_info import earth_coord_tags, usa_whole_tags, ldf_a_tags
+from data_process.tag_info import earth_coord_tags, ldf_a_tags, transfer_ldf_input_tags
 
 def get_in_clusters(data_path: str, train_num: int, set_num: int):
     """
@@ -75,12 +75,6 @@ def _select_ldf_tags(ldf_input: np.ndarray, original_tags: list, choose_tags: li
     converted_data = np.stack(converted_data, -1)
     return converted_data
 
-def _select_column_dataset(source_data, train_target_data, valid_data, original_tags, select_tags):
-    source_coord_pm = _select_ldf_tags(source_data, original_tags, select_tags)
-    train_target_coord_pm = _select_ldf_tags(train_target_data, original_tags, select_tags)
-    valid_coord_pm = _select_ldf_tags(valid_data, original_tags, select_tags)
-    return source_coord_pm, train_target_coord_pm, valid_coord_pm
-
 def _compose_ldf_a_set(ldf_input: np.ndarray, label_data: np.ndarray, original_tags: list):
     center_id = ldf_input.shape[-1]//2
     aod_values = _select_ldf_tags(ldf_input, original_tags, ['gc_aod'])
@@ -104,13 +98,12 @@ class InputOutputSet(Dataset):
         return len(self.input_dt)
 
 class LdfInputData:
-    def __init__(self, source_type: str,  nearest_station_num: int, 
-                 ldf_a: bool, country_name=None):
+    def __init__(self, transfer_name: str, source_type: str,  nearest_station_num: int, ldf_a: bool):
         self.source_type = source_type
         self.nearest_station_num = nearest_station_num
         self.ldf_a = ldf_a
-        self.whole_ldf_tags = whole_ldf_tags
-        self.country_name = country_name
+        self.ldf_input_tags = transfer_ldf_input_tags[transfer_name]
+        self.transfer_name = transfer_name
         self._define_shapes()
 
     def _define_shapes(self):
@@ -118,10 +111,7 @@ class LdfInputData:
             self.target_dim = len(ldf_a_tags)
         else:
             self.target_dim = 1
-        if self.whole_ldf_tags is None:
-            self.whole_ldf_tags = ldf_input_tags
-        self.input_tags = self.whole_ldf_tags
-        self.input_shape = (len(self.input_tags), self.nearest_station_num+1)
+        self.input_shape = (len(self.ldf_input_tags), self.nearest_station_num+1)
 
     def _normalize_train_valid(self, source_input: np.ndarray, train_target_input: np.ndarray,  valid_input: np.ndarray):
         """
@@ -130,7 +120,7 @@ class LdfInputData:
         """
         train_input = np.vstack([source_input, train_target_input])
         mean, std = train_input.mean(axis=0), train_input.std(axis=0)
-        mean, std = _set_pm25_statistic(mean, std, self.input_tags)
+        mean, std = _set_pm25_statistic(mean, std, self.ldf_input_tags)
         std[std==0] = 1
         self.mean, self.std = mean, std
         source_dt = (source_input - mean) / std
@@ -138,17 +128,16 @@ class LdfInputData:
         valid_dt = (valid_input - mean) / std
         return source_dt, train_target_dt, valid_dt
 
-    def read_data(self, normalize: bool, file_name: str):
+    def read_data(self, file_name: str):
         save_npz = np.load(file_name)
 
         source_data, train_target_data, valid_data = save_npz["source_input"], save_npz["train_target_input"], save_npz["valid_input"]
         source_label, train_target_label, valid_label = save_npz["source_label"], save_npz["train_target_label"], save_npz["valid_label"]
         if self.ldf_a:
-            source_data, source_label = _compose_ldf_a_set(source_data, source_label, self.whole_ldf_tags)
-            train_target_data, train_target_label = _compose_ldf_a_set(train_target_data, train_target_label, self.whole_ldf_tags)
-            valid_data, valid_label = _compose_ldf_a_set(valid_data, valid_label, self.whole_ldf_tags)
-        if normalize:
-            source_data, train_target_data, valid_data = self._normalize_train_valid(source_data, train_target_data, valid_data)
+            source_data, source_label = _compose_ldf_a_set(source_data, source_label, self.ldf_input_tags)
+            train_target_data, train_target_label = _compose_ldf_a_set(train_target_data, train_target_label, self.ldf_input_tags)
+            valid_data, valid_label = _compose_ldf_a_set(valid_data, valid_label, self.ldf_input_tags)
+        source_data, train_target_data, valid_data = self._normalize_train_valid(source_data, train_target_data, valid_data)
         source_set = {"input":source_data, "label":source_label}
         train_target_set = {"input":train_target_data, "label":train_target_label}
         valid_set = {"input":valid_data, "label":valid_label}
@@ -160,7 +149,7 @@ class LdfInputData:
 
         train_unite: unite the train data or not
         """
-        read_dataset = self.read_data(True, file_name)
+        read_dataset = self.read_data(file_name)
         source_input = read_dataset["source"]["input"]
         source_label = read_dataset["source"]["label"]
         train_target_input = read_dataset["train_target"]["input"]
@@ -183,9 +172,9 @@ class LdfInputData:
         else:
             return source_loader, train_target_loader, valid_loader
         
-    def compose_regress_input(self, file_name: str, all_features: dict, input_normalize: bool):
+    def compose_regress_input(self, file_name: str, all_features: dict):
         center_id = (self.nearest_station_num + 1) // 2
-        read_dataset = self.read_data(input_normalize, file_name)
+        read_dataset = self.read_data(file_name)
         source_input = read_dataset["source"]["input"][:,:,center_id]
         train_target_input = read_dataset["train_target"]["input"][:,:,center_id]
         valid_input = read_dataset["valid"]["input"][:,:,center_id]
@@ -204,14 +193,6 @@ class LdfInputData:
 
         source_data, train_target_data, valid_data = train_source_npz["source_input"], train_source_npz["train_target_input"], pred_npz["valid_input"]
         source_label, train_target_label, valid_label = train_source_npz["source_label"], train_source_npz["train_target_label"], pred_npz["valid_label"]
-        if self.ldf_a:
-            source_data, train_target_data, valid_data = self._spatially_weight_train_valid(source_data, train_target_data, valid_data)
-        if self.ldf_a:
-            source_data, source_label = _compose_ldf_a_set(source_data, source_label, self.whole_ldf_tags)
-            train_target_data, train_target_label = _compose_ldf_a_set(train_target_data, train_target_label, self.whole_ldf_tags)
-            valid_data, valid_label = _compose_ldf_a_set(valid_data, valid_label, self.whole_ldf_tags)
-        if self.ldf_a:
-            source_data, train_target_data, valid_data = _select_column_dataset(source_data, train_target_data, valid_data, self.whole_ldf_tags, self.input_tags)
         if normalize:
             source_data, train_target_data, valid_data = self._normalize_train_valid(source_data, train_target_data, valid_data)
         valid_set = {"input":valid_data, "label":valid_label}

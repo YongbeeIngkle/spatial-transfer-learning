@@ -28,7 +28,7 @@ class LimaLdfInputCompose:
 
     def _allocate_stations(self, source_dt: pd.DataFrame, train_target_dt: pd.DataFrame, valid_dt: pd.DataFrame):
         station_allocate = LdfInputCompose(source_dt, train_target_dt, valid_dt, self.station_num, "lima")
-        all_inputs, all_labels = station_allocate.allocate_all(True)
+        all_inputs, all_labels = station_allocate.allocate_all(False)
         return all_inputs, all_labels
 
     def save(self):

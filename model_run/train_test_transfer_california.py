@@ -1,10 +1,10 @@
-from model.regressor import SplitLdfCompose
+from model.regressor import CaliforniaSplitLdfCompose
 from model.adapt import GbrTrainTest, NnFeatureTrainTest, NnParameterTrainTest, algorithm_class
 from model.classic import TrainTestTransferData
 from result.save import save_accuracy
 
 def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
-    feature_compute = SplitLdfCompose(
+    feature_compute = CaliforniaSplitLdfCompose(
         s_type, near_station_number, t_num, ldf_a
         )
     if f_name == "NF":
@@ -18,12 +18,12 @@ def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
 if __name__ == "__main__":
     source_type = "east-north" ## The area of source -- east, east-north
     model_name = "Nnw"
-    feature_name = "LDF" ## LDF: Latent Dependency Factor, NF: no feature
-    ldf_a = True
+    feature_name = "NF" ## LDF: Latent Dependency Factor, NF: no feature
+    ldf_a = False
 
     ldf_train = True
     near_station_number = 12 # 4, 8, 12, 16
-    train_numbers = [5,7,9,11]
+    train_numbers = [7, 9, 11]
     number_of_split = 20
 
     accuracy_file = f"{model_name} {feature_name} {source_type}"

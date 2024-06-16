@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from pykrige.ok import OrdinaryKriging
-from data_process.tag_info import ldf_input_tags, input_tags
+from data_process.tag_info import transfer_ldf_input_tags, transfer_tags
 from model.regressor import SplitTargetRead
 
 class TrainTest:

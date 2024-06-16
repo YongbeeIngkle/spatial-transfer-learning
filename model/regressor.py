@@ -1,15 +1,12 @@
 import os
-from data_process.data_path import compose_data_path, country_ldf_data_path, country_path, country_compose_data_path
-from data_process.tag_info import country_tags
+from data_process.data_path import country_path, country_compose_data_path
+from data_process.tag_info import transfer_tags
 from data_process.compose import LdfInputData
 from model.autoencoder import TrainLdfModel
 
 class LdfComposer:
-    def __init__(self, source_type: str,  nearest_station_num: int, 
-                 ldf_a: bool, other_country=False, country_name=None):
-        self.input_data = LdfInputData(
-            source_type, nearest_station_num,
-            ldf_a, None, other_country, country_name)
+    def __init__(self, transfer_name: str, source_type: str,  nearest_station_num: int, ldf_a: bool):
+        self.input_data = LdfInputData(transfer_name, source_type, nearest_station_num, ldf_a)
         self.train_model = TrainLdfModel(1, self.input_data.target_dim, self.input_data.input_shape)
 
     def train(self, data_path: str, model_path: str):
@@ -48,16 +45,14 @@ class SplitTargetRead:
         valid_data = {"input": valid_input, "label": read_dataset["valid"]["label"]}
         return train_target_data, valid_data
 
-class SplitLdfCompose:
-    def __init__(self, source_type: str,  nearest_station_num: int, 
-                 target_station_num: int, ldf_a: bool):
+class CaliforniaSplitLdfCompose:
+    def __init__(self, source_type: str,  nearest_station_num: int, target_station_num: int, ldf_a: bool):
         self.source_type = source_type
         self.nearest_station_num = nearest_station_num
         self.target_station_num = target_station_num
         self.ldf_a = ldf_a
-        self.ldf_composer = LdfComposer(
-            source_type, nearest_station_num, ldf_a
-            )
+        self.compose_data_path = country_compose_data_path["california"]
+        self.ldf_composer = LdfComposer("california", source_type, nearest_station_num, ldf_a)
 
     def train_ldf_composer(self, data_path: str, model_dir: str):
         if not os.path.exists(model_dir):
@@ -69,7 +64,10 @@ class SplitLdfCompose:
         self.ldf_composer.train(data_path, model_path)
 
     def compute_ldf(self, split_id: int, train: bool):
-        data_path = f"{compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} dataset.npz"
+        if self.ldf_a:
+            data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} ldf-a dataset.npz"
+        else:
+            data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} dataset.npz"
         model_dir = f"trained models/ldf composer/tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num}/"
         if train:
             self.train_ldf_composer(data_path, model_dir)
@@ -80,15 +78,12 @@ class SplitLdfCompose:
         source_encode, train_target_encode, valid_encode = self.ldf_composer.encode(data_path, model_path)
         return source_encode, train_target_encode, valid_encode
     
-    def combine_input_feature(self, split_id: int, all_features: dict, input_normalize: bool):
-        data_path = f"{compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} dataset.npz"
-        input_data = LdfInputData(
-            self.source_type, self.nearest_station_num,
-            False, False, False
-            )
-        source_set, train_target_set, valid_set = input_data.compose_regress_input(data_path, all_features, input_normalize)
+    def combine_input_feature(self, split_id: int, all_features: dict):
+        data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} dataset.npz"
+        input_data = LdfInputData("california", self.source_type, self.nearest_station_num, False)
+        source_set, train_target_set, valid_set = input_data.compose_regress_input(data_path, all_features)
         return source_set, train_target_set, valid_set
-    
+
 class CountryFeatureCompute:
     def __init__(self, country_name: str, source_type: str,  
                  nearest_station_num: int, 

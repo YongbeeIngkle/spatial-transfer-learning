@@ -56,8 +56,8 @@ class GbrTrainTest:
             label_data = pd.concat([source_y, target_y])
         else:
             input_data = np.vstack([source_adapt_x, target_x])
-            label_data = np.hstack([source_y, target_y])
-        model.fit(input_data, label_data)
+            label_data = np.vstack([source_y, target_y])
+        model.fit(input_data, label_data.flatten())
         return model
 
     def train(self, source_dataset: dict, train_target_dataset: dict):

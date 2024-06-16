@@ -3,7 +3,7 @@ from data_process.split import LimaSplitLdfInputCompose
 if __name__ == "__main__":
     target_train_numbers = [6] ## 6
     source_type = "whole" ## other source data options -- "west", "east-north"
-    ldf_a = False
+    ldf_a = True
     number_of_splits = 5
     station_num = 12
 
