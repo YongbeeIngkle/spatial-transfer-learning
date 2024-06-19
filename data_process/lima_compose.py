@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from data_process.tag_info import transfer_tags
-from data_process.data_path import country_daily_data_path, monitoring_country_data_path, country_ldf_data_path
+from data_process.data_path import country_daily_data_path, monitoring_country_data_path, country_compose_data_path
 from data_process.allocate import LdfInputCompose
 from model.regressor import CountryFeatureCompute
 
@@ -32,7 +32,7 @@ class LimaLdfInputCompose:
         return all_inputs, all_labels
 
     def save(self):
-        save_dir = f"{country_ldf_data_path["lima"]}/"
+        save_dir = f"{country_compose_data_path["lima"]}/"
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         source_dt, train_target_dt = self._read_source_train()

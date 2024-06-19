@@ -5,4 +5,4 @@ if __name__=='__main__':
     number_of_splits = 5
 
     source_target_id = LimaSourceTargetId(target_train_numbers)
-    source_target_id.save(number_of_splits, 150)
+    source_target_id.save(number_of_splits, 100)

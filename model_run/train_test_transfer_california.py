@@ -4,9 +4,7 @@ from model.classic import TrainTestTransferData
 from result.save import save_accuracy
 
 def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
-    feature_compute = CaliforniaSplitLdfCompose(
-        s_type, near_station_number, t_num, ldf_a
-        )
+    feature_compute = CaliforniaSplitLdfCompose(s_type, near_station_number, t_num, ldf_a)
     if f_name == "NF":
         all_features = None
     elif f_name == "LDF":
@@ -21,9 +19,9 @@ if __name__ == "__main__":
     feature_name = "NF" ## LDF: Latent Dependency Factor, NF: no feature
     ldf_a = False
 
-    ldf_train = True
+    ldf_train = False
     near_station_number = 12 # 4, 8, 12, 16
-    train_numbers = [7, 9, 11]
+    train_numbers = [5, 7, 9, 11]
     number_of_split = 20
 
     accuracy_file = f"{model_name} {feature_name} {source_type}"
@@ -45,5 +43,4 @@ if __name__ == "__main__":
             model_train_test.train(source_set, train_target_set)
             split_pred, split_label = model_train_test.predict(valid_set)
             all_label[split_id], all_pred[split_id] = split_label, split_pred
-        else:
-            save_accuracy(all_label, all_pred, accuracy_file, t_num)
+        save_accuracy(all_label, all_pred, accuracy_file, t_num)

@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 import torch
-from data_process.distance import create_distance_pairwise
 from data_process.tag_info import earth_coord_tags, ldf_a_tags, transfer_ldf_input_tags
 
 def get_in_clusters(data_path: str, train_num: int, set_num: int):
