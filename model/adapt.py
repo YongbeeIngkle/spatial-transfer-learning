@@ -17,8 +17,9 @@ algorithm_class = {
 }
 
 class GbrTrainTest:
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, ldf_a: bool):
         self.model_name = model_name
+        self.ldf_a = ldf_a
 
     def _define_gbr(self):
         params = dict({
@@ -57,7 +58,11 @@ class GbrTrainTest:
         else:
             input_data = np.vstack([source_adapt_x, target_x])
             label_data = np.vstack([source_y, target_y])
-        model.fit(input_data, label_data.flatten())
+        if self.ldf_a:
+            label_data = label_data[:,-1]
+        else:
+            label_data = label_data.flatten()
+        model.fit(input_data, label_data)
         return model
 
     def train(self, source_dataset: dict, train_target_dataset: dict):
@@ -72,25 +77,15 @@ class GbrTrainTest:
         input_dt = pred_dataset["input"]
         pred_val = self.model.predict(input_dt)
         if return_label:
-            label_dt = pred_dataset["label"]
+            if self.ldf_a:
+                label_dt = pred_dataset["label"][:,-1]
+            else:
+                label_dt = pred_dataset["label"].flatten()
             mse_val = mean_squared_error(np.array(label_dt), pred_val)
             print(f"MSE value: {mse_val}")
             return pred_val, np.array(label_dt)
         else:
             return pred_val
-        
-    def mapie(self, source_dataset: dict, train_target_dataset: dict, pred_dataset: dict):
-        X_train = np.vstack([source_dataset["input"], train_target_dataset["input"]])
-        y_train = np.hstack([source_dataset["label"], train_target_dataset["label"]])
-        X_test = pred_dataset["input"]
-        y_test = pred_dataset["label"]
-        mapie_regressor = MapieRegressor(self.model)
-        mapie_regressor.fit(X_train, y_train)
-
-        alpha = [0.05, 0.32]
-        y_pred, y_pis = mapie_regressor.predict(X_test, alpha=alpha)
-        coverage_scores = regression_coverage_score_v2(y_test, y_pis)
-        return coverage_scores
 
 class NnFeatureTrainTest:
     def __init__(self, model_name: str):

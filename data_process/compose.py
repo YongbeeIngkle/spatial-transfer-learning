@@ -66,24 +66,6 @@ def _set_pm25_statistic(mean: np.ndarray, std: np.ndarray, original_tags: list):
         std_df.loc["pm25_value"] = 1
     return np.array(mean_df), np.array(std_df)
 
-def _select_ldf_tags(ldf_input: np.ndarray, original_tags: list, choose_tags: list):
-    converted_data = []
-    for station_id in range(ldf_input.shape[-1]):
-        station_df = pd.DataFrame(ldf_input[:,:,station_id], columns=original_tags)
-        converted_data.append(station_df[choose_tags])
-    converted_data = np.stack(converted_data, -1)
-    return converted_data
-
-def _compose_ldf_a_set(ldf_input: np.ndarray, label_data: np.ndarray, original_tags: list):
-    center_id = ldf_input.shape[-1]//2
-    aod_values = _select_ldf_tags(ldf_input, original_tags, ['gc_aod'])
-    center_aod_values = aod_values[:,:,center_id].flatten()
-    new_label = np.vstack([center_aod_values, label_data]).T
-    new_input = ldf_input.copy()
-    aod_tag_id = np.arange(len(original_tags))[[f=="gc_aod" for f in original_tags]][0]
-    new_input[:,aod_tag_id,center_id] = 0
-    return new_input, new_label
-
 class InputOutputSet(Dataset):
     def __init__(self, input_dt, output_dt):
         super().__init__()
@@ -101,8 +83,10 @@ class LdfInputData:
         self.source_type = source_type
         self.nearest_station_num = nearest_station_num
         self.ldf_a = ldf_a
-        self.ldf_input_tags = transfer_ldf_input_tags[transfer_name]
+        self.ldf_input_tags = transfer_ldf_input_tags[transfer_name][:]
         self.transfer_name = transfer_name
+        if ldf_a:
+            self.ldf_input_tags.remove("gc_aod")
         self._define_shapes()
 
     def _define_shapes(self):
@@ -129,13 +113,8 @@ class LdfInputData:
 
     def read_data(self, file_name: str):
         save_npz = np.load(file_name)
-
         source_data, train_target_data, valid_data = save_npz["source_input"], save_npz["train_target_input"], save_npz["valid_input"]
         source_label, train_target_label, valid_label = save_npz["source_label"], save_npz["train_target_label"], save_npz["valid_label"]
-        if self.ldf_a:
-            source_data, source_label = _compose_ldf_a_set(source_data, source_label, self.ldf_input_tags)
-            train_target_data, train_target_label = _compose_ldf_a_set(train_target_data, train_target_label, self.ldf_input_tags)
-            valid_data, valid_label = _compose_ldf_a_set(valid_data, valid_label, self.ldf_input_tags)
         source_data, train_target_data, valid_data = self._normalize_train_valid(source_data, train_target_data, valid_data)
         source_set = {"input":source_data, "label":source_label}
         train_target_set = {"input":train_target_data, "label":train_target_label}

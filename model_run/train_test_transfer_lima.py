@@ -17,12 +17,12 @@ if __name__ == "__main__":
     source_type = "whole" ## The area of source -- east, west, east-north
     model_name = "Nnw"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- LDF, NF
-    ldf_a = False
+    ldf_a = True
 
-    ldf_train = True
+    ldf_train = False
     near_station_number = 12
     train_target_number = 6
-    number_of_split = 3
+    number_of_split = 1
 
     accuracy_file = f"lima {model_name} {feature_name} {source_type}"
     all_label, all_pred, all_mapie = {}, {}, {}
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         print(f"split{split_id} train-test")
         source_set, train_target_set, valid_set = _compose_input_label(source_type, feature_name, near_station_number, train_target_number, split_id)
         if model_name in algorithm_class["gbr"]:
-            model_train_test = GbrTrainTest(model_name)
+            model_train_test = GbrTrainTest(model_name, ldf_a)
         elif model_name in algorithm_class["nn_feature"]:
             model_train_test = NnFeatureTrainTest(model_name)
         elif model_name in algorithm_class["nn_parameter"]:
