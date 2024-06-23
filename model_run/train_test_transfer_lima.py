@@ -14,15 +14,15 @@ def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
     return source_set, train_target_set, valid_set
 
 if __name__ == "__main__":
-    source_type = "whole" ## The area of source -- east, west, east-north
+    source_type = "east-north" ## The area of source -- whole, east-north
     model_name = "Nnw"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- LDF, NF
-    ldf_a = True
+    ldf_a = False
 
-    ldf_train = False
+    ldf_train = True
     near_station_number = 12
-    train_target_number = 6
-    number_of_split = 1
+    train_target_number = 7
+    number_of_split = 5
 
     accuracy_file = f"lima {model_name} {feature_name} {source_type}"
     all_label, all_pred, all_mapie = {}, {}, {}

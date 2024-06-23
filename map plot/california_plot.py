@@ -2,9 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import geopandas as gpd
-from geopandas.tools import sjoin
-from shapely.geometry import Point
+from data_process.data_path import predict_result_path
 
 def average_pm_values():
     # monitoring_dt = pd.read_csv("D:/US_PM25_data/california/california_station9_monitoring.csv")
@@ -30,13 +28,10 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
     file_num = 0
     all_preds = []
     for pred_date in range(start_date, end_date):
-        if "GBR" in pred_dir:
-            date_pred_file = [f for f in pred_files if f"day-{pred_date}.csv" in f]
-        elif "Nnw" in pred_dir:
-            date_pred_file = [f for f in pred_files if f"day-{pred_date} nearest" in f]
-        if len(date_pred_file) < 1:
+        date_pred_file = f"date{pred_date}.csv"
+        if date_pred_file not in pred_files:
             continue
-        date_pred_vals = pd.read_csv(f"{pred_dir}{date_pred_file[0]}", index_col=0).set_index(["cmaq_x","cmaq_y"])
+        date_pred_vals = pd.read_csv(f"{pred_dir}{date_pred_file}").set_index(["cmaq_x","cmaq_y"])
         date_pred_vals.columns = [f"pm25_date{pred_date}"]
         all_preds.append(date_pred_vals.copy())
         file_num += 1
@@ -50,12 +45,20 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
     # cbar.ax.tick_params(labelsize=17)
     plt.axis("off")
     # plt.show()
-    plt.savefig(f'{pred_dir}date{start_date}-{end_date} average.png')
+    plt.savefig(f'{pred_dir}figures/date{start_date}-{end_date} average.png')
     plt.close('all')
 
     # _plot_california_map(pm_mean)
 
 if __name__=='__main__':
-    pred_dir = "D:/US_PM25_data/california/predictions/Nnw/LDF/n_dim_eu_distance/input_weight/contextual_input/"
+    model_name = "Nnw"
+    feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
+    ldf_a = False
+    target_station_num = 9
+    nearest_station_num = 12
+    split_id = 0
+    result_path = predict_result_path["california"]
+
+    pred_dir = f"{result_path}/{model_name}/{feature_name}/"
     pred_results = [f for f in os.listdir(pred_dir) if ".csv" in f]
-    _interval_average(pred_results, 0, 366)
+    _interval_average(pred_results, 1, 366)

@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
-from data_process.data import tag_names, create_distance_matrix
-from data_process.spatial_validation import get_clusters, get_in_clusters
+from data_process.distance import create_distance_matrix
+from data_process.spatial_validation import get_clusters
 
 def _drop_constant_col(train_dt: pd.DataFrame,):
     _std = train_dt.std(axis=0)

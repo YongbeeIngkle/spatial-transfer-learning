@@ -4,7 +4,7 @@ from data_process.tag_info import transfer_tags
 from data_process.data_path import monitoring_country_data_path, country_daily_data_path
 
 def _monitoring_process():
-    whole_monitoring_dt = pd.read_csv("D:/Lima-data-info/Lima_train.csv")
+    whole_monitoring_dt = pd.read_csv("D:/Lima-data-info/lima_train.csv")
     lima_tags = transfer_tags["lima"]
     year16_dt = whole_monitoring_dt[whole_monitoring_dt['year'] == 2016][lima_tags["target"]]
     year16_dt.columns = lima_tags["source"]
@@ -24,4 +24,4 @@ def _whole_map_process():
 
 if __name__ == "__main__":
     _monitoring_process()
-    _whole_map_process()
+    # _whole_map_process()

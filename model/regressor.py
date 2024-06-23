@@ -65,7 +65,7 @@ class CaliforniaSplitLdfCompose:
 
     def compute_ldf(self, split_id: int, train: bool):
         if self.ldf_a:
-            data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} ldf-a dataset.npz"
+            data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} ldf_a dataset.npz"
         else:
             data_path = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num} dataset.npz"
         model_dir = f"trained models/ldf composer/tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num}/"
@@ -84,52 +84,27 @@ class CaliforniaSplitLdfCompose:
         source_set, train_target_set, valid_set = input_data.compose_regress_input(data_path, all_features)
         return source_set, train_target_set, valid_set
 
-class PredictFeatureCompute:
-    def __init__(self, country_name: str, source_type: str, nearest_station_num: int, ldf_a: bool):
-        self.country_name = country_name
+class CaliforniaPredictLdfCompose:
+    def __init__(self, source_type: str,  nearest_station_num: int, target_station_num: int, ldf_a: bool):
         self.source_type = source_type
         self.nearest_station_num = nearest_station_num
-        self.compose_data_path = predict_ldf_data_path[country_name]
+        self.target_station_num = target_station_num
         self.ldf_a = ldf_a
-        self._define_directory()
-        self.ldf_composer = LdfComposer(country_name, source_type, nearest_station_num, ldf_a)
+        self.compose_data_path = country_compose_data_path["california"]
+        self.ldf_composer = LdfComposer("california", source_type, nearest_station_num, ldf_a)
 
-    def _define_directory(self):
-        self.data_path = f"{self.compose_data_path}source-train nearest{self.nearest_station_num} dataset.npz"
-        self.model_dir = f"trained models/{self.country_name} pred ldf composer/{self.source_type} nearest{self.nearest_station_num}/"
-        if not os.path.exists(self.model_dir):
-            os.makedirs(self.model_dir)
+    def compute_ldf(self, train_source_path: str, data_path: str, split_id: int):
+        model_dir = f"trained models/ldf composer/tl-cal-{self.target_station_num}/split-{split_id}/{self.source_type} nearest{self.nearest_station_num}/"
         if self.ldf_a:
-            self.model_path = self.model_dir + "ldf-a_model"
+            model_path = model_dir + "ldf-a_model"
         else:
-            self.model_path = self.model_dir + "vanilla_model"
-
-    def _define_model_path(self):
-        file_name = file_name + "model"
-        return self.model_dir + file_name
-
-    def compute_ldf(self, train: bool):
-        if self.ldf_a:
-            data_path = f"{self.compose_data_path}{self.source_type} nearest{self.nearest_station_num} ldf-a dataset.npz"
-        else:
-            data_path = f"{self.compose_data_path}{self.source_type} nearest{self.nearest_station_num} dataset.npz"
-        if train:
-            self.ldf_composer.train(data_path, self.model_path)
-        source_encode, train_target_encode, valid_encode = self.ldf_composer.encode(self.data_path, self.model_path)
-        return source_encode, train_target_encode, valid_encode
-
-    def combine_input_feature(self, all_features: dict):
-        input_data = LdfInputData(self.country_name, self.source_type, self.nearest_station_num, self.ldf_a)
-        source_set, train_target_set, valid_set = input_data.compose_regress_input(self.data_path, all_features)
-        return source_set, train_target_set, valid_set
-    
-    def compute_pred_ldf(self, pred_file: str):
-        pred_encode = self.ldf_composer.pred_encode(self.data_path, pred_file, self.model_path)
+            model_path = model_dir + "vanilla_model"
+        pred_encode = self.ldf_composer.pred_encode(train_source_path, data_path, model_path)
         return pred_encode
     
-    def combine_pred_input_feature(self, pred_file: str, pred_feature):
-        input_data = LdfInputData(self.country_name, self.source_type, self.nearest_station_num, self.ldf_a)
-        pred_set = input_data.compose_pred_regress_input(self.data_path, pred_file, pred_feature)
+    def combine_input_feature(self, train_source_path: str, data_path: str, all_features: dict):
+        input_data = LdfInputData("california", self.source_type, self.nearest_station_num, False)
+        pred_set = input_data.compose_pred_regress_input(train_source_path, data_path, all_features)
         return pred_set
 
 class LimaSplitLdfCompose:

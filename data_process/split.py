@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from data_process.tag_info import usa_whole_tags, transfer_tags
-from data_process.data_path import monitoring_data_path, country_compose_data_path, monitoring_country_data_path
+from data_process.data_path import country_compose_data_path, monitoring_country_data_path
 from data_process.compose import source_select, get_in_clusters
 from data_process.allocate import LdfInputCompose
 
@@ -33,7 +33,7 @@ class CaliforniaSourcetargetId:
         """
         Read the input-label data and split into source and target cmaqs.
         """
-        monitoring_whole_data = pd.read_csv(monitoring_data_path)[usa_whole_tags]
+        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[usa_whole_tags]
         source_target_set, target_count = self._source_target_split(monitoring_whole_data)
         return source_target_set, target_count
     
@@ -169,7 +169,7 @@ class CaliforniaSplitLdfInputCompose:
         self.compose_data_path = country_compose_data_path["california"]
 
     def _split_dataset(self, train_test_split_id: dict, source_type: str):
-        monitoring_whole_data = pd.read_csv(monitoring_data_path)[usa_whole_tags]
+        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[usa_whole_tags]
         source_index, train_target_index, valid_index = train_test_split_id['train_out_cluster'], train_test_split_id['train_in_cluster'], train_test_split_id['test_cluster']
         source_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], source_index)]
         train_target_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], train_target_index)]
@@ -209,13 +209,13 @@ class LimaSplitLdfInputCompose:
         self.compose_data_path = country_compose_data_path["lima"]
 
     def _split_dataset(self, train_test_split_coord: dict, source_type: str):
-        monitoring_usa_data = pd.read_csv(monitoring_data_path)[transfer_tags["lima"]["source"]]
+        monitoring_usa_data = pd.read_csv(monitoring_country_data_path["usa"])[transfer_tags["lima"]["source"] + ["rid"]]
         monitoring_country_data = pd.read_csv(monitoring_country_data_path["lima"])[transfer_tags["lima"]["source"]]
         source_coords, train_target_coords, valid_coords = train_test_split_coord['train_out_cluster'], train_test_split_coord['train_in_cluster'], train_test_split_coord['test_cluster']
-        source_data = monitoring_usa_data
+        source_data = monitoring_usa_data.loc[np.all(np.isin(monitoring_country_data[["lon", "lat"]], source_coords), axis=1)]
         train_target_data = monitoring_country_data.loc[np.all(np.isin(monitoring_country_data[["lon", "lat"]], train_target_coords), axis=1)]
         valid_data = monitoring_country_data.loc[np.all(np.isin(monitoring_country_data[["lon", "lat"]], valid_coords), axis=1)]
-        source_data = source_select(source_data, source_type)
+        source_data = source_select(source_data, source_type)[transfer_tags["lima"]["source"]]
         return source_data, train_target_data, valid_data
     
     def _allocate_stations(self, source_dt: pd.DataFrame, train_target_dt: pd.DataFrame, valid_dt: pd.DataFrame):

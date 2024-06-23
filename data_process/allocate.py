@@ -180,3 +180,17 @@ class LdfInputCompose:
             "valid":all_valid_label
             }
         return composed_inputs, composed_labels
+    
+    def allocate_pred_daily(self, same_territory: bool, save_dir: str):
+        all_dates = np.unique(self.valid_data["day"])
+        for date_num, date in enumerate(all_dates):
+            print(f"date {date_num}")
+            date_source, date_train_target, date_pred = self._extract_date_data(date, same_territory)
+            if len(date_source) < 1:
+                continue
+            if self.ldf_a:
+                date_source = date_source.drop(columns=['gc_aod'])
+                date_train_target = date_train_target.drop(columns=['gc_aod'])
+                date_pred = date_pred.drop(columns=['gc_aod'])
+            _, _, pred_input = self._compose_ldf_input(date_source, date_train_target, date_pred)
+            np.save(f"{save_dir}date{date}.npy", pred_input)

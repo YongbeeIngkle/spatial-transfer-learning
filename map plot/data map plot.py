@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_process.data_path import pred_whole_us_path, monitoring_data_path, compose_data_path
+from data_process.data_path import pred_whole_us_path, monitoring_country_data_path, compose_data_path
 from data_process.tag_info import whole_tag_names
 from data_process.compose import get_in_clusters
 
@@ -26,7 +26,7 @@ class SingleAnalyzerClimate:
 
     def get_target_coords(self):
         train_test_data_id = get_in_clusters(compose_data_path, self.train_num, 20)
-        monitoring_whole_data = pd.read_csv(monitoring_data_path)[whole_tag_names]
+        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[whole_tag_names]
         all_target_sets = {}
         for split_id in train_test_data_id.keys():
             train_test_split_id = train_test_data_id[split_id]
@@ -94,7 +94,7 @@ class SingleAnalyzerClimate:
 if __name__=='__main__':
     sp = 15
     # _save_whole_coord_rid()
-    monitoring_whole_data = pd.read_csv(monitoring_data_path)[whole_tag_names]
+    monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[whole_tag_names]
     coord_whole_data = pd.read_csv(pred_whole_us_path)
     whole_coord_rid = coord_whole_data.drop_duplicates().reset_index(drop=True)[['cmaq_x', 'cmaq_y', 'rid']]
 

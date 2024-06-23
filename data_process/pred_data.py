@@ -1,130 +1,93 @@
+import os
 import numpy as np
 import pandas as pd
-from scipy.spatial import distance_matrix
-from torch.utils.data import Dataset, DataLoader
+from data_process.tag_info import usa_whole_tags
+from data_process.data_path import monitoring_country_data_path, country_compose_data_path, predict_ldf_data_path, country_daily_data_path
+from data_process.compose import source_select, get_in_clusters
+from data_process.allocate import LdfInputCompose
+from model.regressor import CaliforniaPredictLdfCompose
 
-def _convert_loader(input_dt:np.ndarray, output_dt:np.ndarray, batch:int):
-    """
-    Convert input-output dataset as torch DataLoader.
+class CaliforniaLdfInputCompose:
+    def __init__(self, target_station_num: int, split_id: int, near_station_num: int, ldf_a: bool):
+        self.target_station_num = target_station_num
+        self.split_id = split_id
+        self.near_station_num = near_station_num
+        self.ldf_a = ldf_a
+        self.pred_daily_path = country_daily_data_path["california"]
+        self.compose_data_path = predict_ldf_data_path["california"]
 
-    input_dt: input dataset
-    output_dt: output dataset
-    batch: batch size
-    """
-    if len(input_dt) < 1:
-        raise Exception("input_dt length is 0.")
-    if len(output_dt) < 1:
-        raise Exception("output_dt length is 0.")
-    dt_set = InputOutputSet(input_dt, output_dt)
-    dt_loader = DataLoader(dt_set, batch_size=batch, shuffle=False, pin_memory=True)
-    return dt_loader
-
-def create_distance_matrix(dt1: pd.DataFrame, dt2: pd.DataFrame):
-    """
-    Create distance matrix between two dataframe. If the distance is 0 (i.e. same coordinate), replace to inf.
-
-    dt1: first data
-    dt2: second data
-    """
-    all_distance = distance_matrix(dt1, dt2)
-    all_distance[all_distance==0] = np.inf
-    all_distance = pd.DataFrame(all_distance, index=dt1.index, columns=dt2.index)
-    return all_distance
-
-class PredWeightAverage:
-    def __init__(self, train_data:pd.DataFrame, train_label: pd.DataFrame, train_statistics: dict):
-        """
-        Compute weighted average.
-
-        train_data: train input
-        target_coord: target coordination
-        trian_label: train label
-        """
-        self.train_data = train_data
-        self.train_label = train_label
-        self.train_statistics = train_statistics
-        self.cmaq_cols = ["cmaq_x", "cmaq_y", "cmaq_id"]
-        
-    def allocate_weight(self, target_sample):
-        """
-        Allocate the weight (1/distance) for train data and validation data.
-        """
-        sample_normalize = (target_sample - self.train_statistics["mean"]) / self.train_statistics["std"]
-        sample_normalize = sample_normalize.set_index("cmaq_id")
-        train_cmaq = pd.DataFrame(np.unique(self.train_data[self.cmaq_cols], axis=0), columns=self.cmaq_cols).set_index("cmaq_id")
-        self.target_weight = 1 / create_distance_matrix(sample_normalize[["cmaq_x", "cmaq_y"]], train_cmaq)
-
-    def _date_weight_average(self, data: pd.DataFrame, weight: pd.DataFrame, train_label: pd.DataFrame, train_cmaq):
-        """
-        Compute weighted average of given data for one date.
-
-        data: input data for computing weighted average
-        weight: weight for weighted average
-        train_label: label of train data
-        train_cmaq: cmaq id of train data
-        """
-        exist_weight = weight.loc[data["cmaq_id"], np.isin(weight.columns, train_cmaq)]
-        weight_label = train_label[exist_weight.columns]
-        weight_sum = np.sum(exist_weight, axis=1)
-        cmaq_wa = np.sum(exist_weight*weight_label, axis=1)/weight_sum
-        cmaq_wa.index = data.index
-        return cmaq_wa
-        
-    def compute_date_wa(self, target_data: pd.DataFrame):
-        """
-        Compute weighted average of train and validation data for given date.
-
-        date: weighted average computing date
-        """
-        data_normalize = (target_data - self.train_statistics["mean"]) / self.train_statistics["std"]
-        date = data_normalize["day"].iloc[0]
-        date_train_data = self.train_data.loc[self.train_data["day"]==date].copy()
-        date_train_label = self.train_label.loc[self.train_data["day"]==date]
-        date_train_label.index = date_train_data["cmaq_id"]
-        target_data_wa = self._date_weight_average(data_normalize, self.target_weight, date_train_label, date_train_data["cmaq_id"])
-        return target_data_wa
-
-class InputOutputSet(Dataset):
-    def __init__(self, input_dt, output_dt):
-        super().__init__()
-        self.input_dt = input_dt
-        self.output_dt = output_dt
-
-    def __getitem__(self, i):
-        return self.input_dt[i], self.output_dt[i]
-
-    def __len__(self):
-        return len(self.input_dt)
-
-class EncodePredCompose:
-    def __init__(self, source_type:str, statistics: dict, normalize=False, coord_pm=False):
-        self.source_type = source_type
-        self.statistics = statistics
-        self.normalize = normalize
-        self.coord_pm = coord_pm
-
-    def read_encoder_data(self, date: int):
-        target_data = np.load(f"D:/target-encode/tl-cal-15/split0/date{date}.npz")["dataset"]
-        if self.coord_pm:
-            target_data = target_data[:,[2,3,-1]]
-        if self.normalize:
-            target_data = (target_data - self.statistics["mean"]) / self.statistics["std"]
+    def _split_dataset(self, train_test_split_id: dict, source_type: str):
+        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[usa_whole_tags]
+        source_index, train_target_index = train_test_split_id['train_out_cluster'], train_test_split_id['train_in_cluster']
+        source_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], source_index)]
+        train_target_data = monitoring_whole_data.loc[np.isin(monitoring_whole_data["cmaq_id"], train_target_index)]
+        source_data = source_select(source_data, source_type)
+        return source_data, train_target_data
+    
+    def _stack_pred_data(self):
+        target_data = []
+        for date in range(1,366):
+            target_date_data = pd.read_csv(f"{self.pred_daily_path}us-2011-satellite-day-{date}.csv")
+            target_data.append(target_date_data)
+        target_data = pd.concat(target_data)
         return target_data
 
-    def convert_loader(self, dataset: np.ndarray):
-        data_loader = _convert_loader(dataset, np.zeros(len(dataset)), 64)
-        return data_loader
+    def _allocate_stations(self, source_dt: pd.DataFrame, train_target_dt: pd.DataFrame, pred_dt: pd.DataFrame, save_dir: str):
+        station_allocate = LdfInputCompose(source_dt, train_target_dt, pred_dt, self.near_station_num, "california", self.ldf_a)
+        station_allocate.allocate_pred_daily(True, save_dir)
 
-class FeaturePredCompose:
-    def __init__(self, source_type:str, statistics: dict, normalize=False, coord_pm=False):
+    def save(self, source_type: str):
+        train_test_data_id = get_in_clusters(country_compose_data_path["california"], self.target_station_num, 20)
+        if self.ldf_a:
+            save_dir = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{source_type} nearest{self.near_station_num} ldf_a/"
+        else:
+            save_dir = f"{self.compose_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{source_type} nearest{self.near_station_num}/"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        train_test_split_id = train_test_data_id[self.split_id]
+        source_dt, train_target_dt = self._split_dataset(train_test_split_id, source_type)
+        pred_dt = self._stack_pred_data()
+        self._allocate_stations(source_dt, train_target_dt, pred_dt, save_dir)
+
+class CaliforniaPredLdfSet:
+    def __init__(self, target_station_num: int, source_type: str, near_station_num: int, feature_name: str, split_id: int, ldf_a: bool):
+        self.target_station_num = target_station_num
         self.source_type = source_type
-        self.statistics = statistics
-        self.normalize = normalize
-        self.coord_pm = coord_pm
+        self.near_station_num = near_station_num
+        self.feature_name = feature_name
+        self.split_id = split_id
+        self.ldf_a = ldf_a
+        self.pred_data_path = predict_ldf_data_path["california"]
+        self.train_data_path = country_compose_data_path["california"]
+        self.feature_compute = CaliforniaPredictLdfCompose(self.source_type, self.near_station_num, self.target_station_num, self.ldf_a)
+        self._list_ldf_files()
+        self.file_id = 0
 
-    def combine_input_feature(self, input_data: pd.DataFrame, feature_data: np.ndarray):
-        input_copy = input_data[self.statistics["mean"].index]
-        if self.normalize:
-            input_copy = (input_copy - self.statistics["mean"]) / self.statistics["std"]
-        input_copy["feature"] = feature_data
-        return input_copy
+    def _list_ldf_files(self):
+        if self.ldf_a:
+            self.ldf_file_dir = f"{self.pred_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{self.source_type} nearest{self.near_station_num} ldf_a/"
+            self.train_source_path = f"{self.train_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{self.source_type} nearest{self.near_station_num} ldf_a dataset.npz"
+        else:
+            self.ldf_file_dir = f"{self.pred_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{self.source_type} nearest{self.near_station_num}/"
+            self.train_source_path = f"{self.train_data_path}tl-cal-{self.target_station_num}/split-{self.split_id}/{self.source_type} nearest{self.near_station_num} dataset.npz"
+        self.ldf_files = np.sort([x for x in os.listdir(self.ldf_file_dir)])
+
+    def _process_data(self):
+        pred_data_path = self.ldf_file_dir + self.ldf_files[self.file_id]
+        if self.feature_name == "NF":
+            pred_feature = None
+        elif self.feature_name == "LDF":
+            pred_feature = self.feature_compute.compute_ldf(self.train_source_path, pred_data_path, self.split_id)
+        pred_set = self.feature_compute.combine_input_feature(self.train_source_path, pred_data_path, pred_feature)
+        pred_set["file"] = self.ldf_files[self.file_id]
+        return pred_set
+
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.file_id >= len(self.ldf_files):
+            raise StopIteration
+        file_dataset = self._process_data()
+        self.file_id += 1
+        return file_dataset

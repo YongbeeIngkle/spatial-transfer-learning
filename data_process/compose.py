@@ -165,33 +165,26 @@ class LdfInputData:
         valid_data = {"input": valid_input, "label": read_dataset["valid"]["label"]}
         return source_data, train_target_data, valid_data
 
-    def read_pred_data(self, normalize: bool, train_source_file: str, pred_file: str):
+    def read_pred_data(self, train_source_file: str, pred_file: str):
         train_source_npz = np.load(train_source_file)
         pred_npz = np.load(pred_file)
 
-        source_data, train_target_data, valid_data = train_source_npz["source_input"], train_source_npz["train_target_input"], pred_npz["valid_input"]
-        source_label, train_target_label, valid_label = train_source_npz["source_label"], train_source_npz["train_target_label"], pred_npz["valid_label"]
-        if normalize:
-            source_data, train_target_data, valid_data = self._normalize_train_valid(source_data, train_target_data, valid_data)
-        valid_set = {"input":valid_data, "label":valid_label}
-        return valid_set
+        source_data, train_target_data, pred_data = train_source_npz["source_input"], train_source_npz["train_target_input"], pred_npz
+        _, _, pred_data_normalized = self._normalize_train_valid(source_data, train_target_data, pred_data)
+        return pred_data, pred_data_normalized
     
     def convert_pred_loader(self, train_source_path: str, pred_path: str):
-        pred_dataset = self.read_pred_data(True, train_source_path, pred_path)
-        valid_loader = _convert_loader(pred_dataset["input"], pred_dataset["label"], 128)
-        return valid_loader
+        _, pred_dataset = self.read_pred_data(train_source_path, pred_path)
+        pred_loader = _convert_loader(pred_dataset, pred_dataset, 128)
+        return pred_loader
     
-    def compose_pred_regress_input(self, train_source_path: str, pred_path: str, all_features: dict, input_normalize: bool):
+    def compose_pred_regress_input(self, train_source_path: str, pred_path: str, all_features: dict):
         center_id = (self.nearest_station_num + 1) // 2
-        pred_dataset = self.read_pred_data(input_normalize, train_source_path, pred_path)
-        pred_input = pred_dataset["input"][:,:,center_id]
+        pred_data_original, pred_dataset = self.read_pred_data(train_source_path, pred_path)
+        pred_input = pred_dataset[:,:,center_id]
         if all_features is not None:
             pred_input[:,-1] = all_features
-        if input_normalize:
-            original_pred_dataset = self.read_pred_data(False, train_source_path, pred_path)
-            original_input = original_pred_dataset["input"][:,:,center_id]
-        else:
-            original_input = pred_input
-        coordinates = pd.DataFrame(original_input, columns=self.whole_ldf_tags)[earth_coord_tags[self.country_name]]
+        original_input = pred_data_original[:,:,center_id]
+        coordinates = pd.DataFrame(original_input, columns=transfer_ldf_input_tags[self.transfer_name])[earth_coord_tags[self.transfer_name]]
         pred_infoset = {"coord": coordinates, "input": pred_input}
         return pred_infoset
