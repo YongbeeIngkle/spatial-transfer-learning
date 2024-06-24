@@ -16,10 +16,10 @@ def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
 if __name__ == "__main__":
     source_type = "east-north" ## The area of source -- east, east-north
     model_name = "Nnw"
-    feature_name = "NF" ## LDF: Latent Dependency Factor, NF: no feature
-    ldf_a = False
+    feature_name = "LDF" ## LDF: Latent Dependency Factor, NF: no feature
+    ldf_a = True
 
-    ldf_train = False
+    ldf_train = True
     near_station_number = 12 # 4, 8, 12, 16
     train_numbers = [5, 7, 9, 11]
     number_of_split = 20
@@ -33,7 +33,7 @@ if __name__ == "__main__":
             print(f"split{split_id} train-test")
             source_set, train_target_set, valid_set = _compose_input_label(source_type, feature_name, near_station_number, t_num, split_id)
             if model_name in algorithm_class["gbr"]:
-                model_train_test = GbrTrainTest(model_name)
+                model_train_test = GbrTrainTest(model_name, ldf_a)
             elif model_name in algorithm_class["nn_feature"]:
                 model_train_test = NnFeatureTrainTest(model_name)
             elif model_name in algorithm_class["nn_parameter"]:

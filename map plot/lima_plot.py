@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 from geopandas.tools import sjoin
 from shapely.geometry import Point
+from data_process.data_path import predict_result_path
 
 def average_pm_values():
     monitoring_dt = pd.read_csv("D:/US_PM25_data/Lima/lima_monitoring.csv")
@@ -35,23 +36,14 @@ def _find_inbound_lima(pm_mean: pd.DataFrame):
     inbound_ids = np.hstack([list(grouped.groups[k]) for k in grouped.groups.keys()])
     return pm_mean.iloc[inbound_ids]
 
-def _change_3digit(date_str: str):
-    add0_num = 3 - len(date_str)
-    convert_date = ''
-    for i in range(add0_num):
-        convert_date += '0'
-    convert_date += date_str
-    return convert_date
-
 def _interval_average(pred_files: list, start_date: int, end_date: int):
     file_num = 0
     all_preds = []
     for pred_date in range(start_date, end_date):
-        digit3_date = _change_3digit(str(pred_date))
-        date_pred_file = [f for f in pred_files if f"_{digit3_date} nearest" in f]
-        if len(date_pred_file) < 1:
+        date_pred_file = f"date{pred_date}.csv"
+        if date_pred_file not in pred_files:
             continue
-        date_pred_vals = pd.read_csv(f"{pred_dir}{date_pred_file[0]}", index_col=0).set_index(["lon","lat"])
+        date_pred_vals = pd.read_csv(f"{pred_dir}{date_pred_file}").set_index(["lon","lat"])
         date_pred_vals.columns = [f"pm25_date{pred_date}"]
         all_preds.append(date_pred_vals.copy())
         file_num += 1
@@ -69,16 +61,22 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
 
     plt.figure(figsize=(6, 6))
     plt.scatter(inbound_lima_pm.index.get_level_values('lon'), inbound_lima_pm.index.get_level_values('lat'), c=inbound_lima_pm, s=12, cmap="rainbow", vmin=14.5, vmax=48.5, marker="o", alpha=0.8)
-    # cbar = plt.colorbar()
-    # cbar.ax.tick_params(labelsize=17)
+    cbar = plt.colorbar()
+    cbar.ax.tick_params(labelsize=17)
     plt.axis("off")
-    # plt.show()
-    plt.savefig(f'{pred_dir}date{start_date}-{end_date} average lima-bound.png')
-    plt.close('all')
+    plt.show()
+    # plt.savefig(f'{pred_dir}date{start_date}-{end_date} average lima-bound.png')
+    # plt.close('all')
 
     # _plot_lima_map(inbound_lima_pm)
 
 if __name__=='__main__':
-    pred_dir = "D:/US_PM25_data/Lima/predictions/Nnw/LDF/n_dim_eu_distance/input_weight/contextual_input/"
+    model_name = "Nnw"
+    feature_name = "NF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
+    ldf_a = False
+    nearest_station_num = 12
+    result_path = predict_result_path["lima"]
+
+    pred_dir = f"{result_path}/{model_name}/{feature_name}/"
     pred_results = [f for f in os.listdir(pred_dir) if ".csv" in f]
-    _interval_average(pred_results, 0, 366)
+    _interval_average(pred_results, 1, 366)

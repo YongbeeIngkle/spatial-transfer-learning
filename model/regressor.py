@@ -141,3 +141,51 @@ class LimaSplitLdfCompose:
         input_data = LdfInputData("lima", self.source_type, self.nearest_station_num, self.ldf_a)
         source_set, train_target_set, valid_set = input_data.compose_regress_input(data_path, all_features)
         return source_set, train_target_set, valid_set
+
+class LimaPredictLdfCompose:
+    def __init__(self, source_type: str,  nearest_station_num: int, ldf_a: bool):
+        self.source_type = source_type
+        self.nearest_station_num = nearest_station_num
+        self.ldf_a = ldf_a
+        self.compose_data_path = predict_ldf_data_path["lima"]
+        self.ldf_composer = LdfComposer("lima", source_type, nearest_station_num, ldf_a)
+        if self.ldf_a:
+            self.train_source_path = f"{self.compose_data_path}monitor {source_type} nearest{self.nearest_station_num} ldf_a dataset.npz"
+        else:
+            self.train_source_path = f"{self.compose_data_path}monitor {source_type} nearest{self.nearest_station_num} dataset.npz"
+
+    def compute_train_ldf(self, train: bool):
+        model_dir = f"trained models/lima/ldf composer/{self.source_type} predict "
+        if self.ldf_a:
+            model_path = model_dir + "ldf-a_model"
+        else:
+            model_path = model_dir + "vanilla_model"
+        if train:
+            if not os.path.exists(model_dir):
+                os.makedirs(model_dir)
+            self.ldf_composer.train(self.train_source_path, model_path)
+        source_encode, train_target_encode, valid_encode = self.ldf_composer.encode(self.train_source_path, model_path)
+        return source_encode, train_target_encode, valid_encode
+
+    def combine_train_input_feature(self, all_features: dict):
+        input_data = LdfInputData("lima", self.source_type, self.nearest_station_num, False)
+        source_set, train_target_set, valid_set = input_data.compose_regress_input(self.train_source_path, all_features)
+        return source_set, train_target_set, valid_set
+
+    def compute_pred_ldf(self, pred_data_path: str, train: bool):
+        model_dir = f"trained models/lima/ldf composer/{self.source_type} predict "
+        if self.ldf_a:
+            model_path = model_dir + "ldf-a_model"
+        else:
+            model_path = model_dir + "vanilla_model"
+        if train:
+            if not os.path.exists(model_dir):
+                os.makedirs(model_dir)
+            self.ldf_composer.train(self.train_source_path, model_path)
+        pred_encode = self.ldf_composer.pred_encode(self.train_source_path, pred_data_path, model_path)
+        return pred_encode
+
+    def combine_pred_input_feature(self, pred_data_path: str, all_features: dict):
+        input_data = LdfInputData("lima", self.source_type, self.nearest_station_num, False)
+        pred_set = input_data.compose_pred_regress_input(self.train_source_path, pred_data_path, all_features)
+        return pred_set

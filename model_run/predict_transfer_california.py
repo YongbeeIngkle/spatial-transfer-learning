@@ -28,7 +28,7 @@ if __name__ == "__main__":
     source_type = "east-north"
     model_name = "Nnw"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
-    ldf_a = True
+    ldf_a = False
     target_station_num = 9
     nearest_station_num = 12
     split_id = 0
