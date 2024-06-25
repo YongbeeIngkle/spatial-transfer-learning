@@ -12,15 +12,16 @@ Code, and Supplementary for the paper: _"Spatial Transfer Learning for Estimatin
 8. **sample_data:** Contains sample dataset.
 
 ## Environment Installation
-In order to set up the environment, you have to install the libraries of requirements.txt.
-
+In order to set up the environment, you have to install the libraries of requirements.txt. <br/>
 If you have already installed the anaconda, you can easily set up with
 ```bash
 conda env create -f requirements.txt
 ```
 
 ## Dataset
-[us_monitoring.csv](https://drive.google.com/file/d/1G_nd7PGVF51kL-PtJVYlrIQ1UBmhd0Vd/view?usp=drive_link)
-[california whole daily](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing)
-[lima_monitoring.csv](https://drive.google.com/file/d/1m3vo-fdFPsI0nUxhewav0z3U-vlr4ENR/view?usp=sharing)
-[Lima2016](https://drive.google.com/file/d/1hRgBhvYJ9295fPq1_pq12OCy29ra8dG_/view?usp=sharing)
+[us_monitoring.csv](https://drive.google.com/file/d/1G_nd7PGVF51kL-PtJVYlrIQ1UBmhd0Vd/view?usp=drive_link) <br/>
+[california whole daily](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing) <br/>
+[lima_monitoring.csv](https://drive.google.com/file/d/1m3vo-fdFPsI0nUxhewav0z3U-vlr4ENR/view?usp=sharing) <br/>
+[Lima2016](https://drive.google.com/file/d/1hRgBhvYJ9295fPq1_pq12OCy29ra8dG_/view?usp=sharing) <br/>
+
+
