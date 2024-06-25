@@ -72,11 +72,15 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
 
 if __name__=='__main__':
     model_name = "Nnw"
-    feature_name = "NF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
-    ldf_a = False
+    source_type = "east-north"
+    feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
+    ldf_a = True
     nearest_station_num = 12
     result_path = predict_result_path["lima"]
 
-    pred_dir = f"{result_path}/{model_name}/{feature_name}/"
+    if ldf_a:
+        pred_dir = f"{result_path}/{model_name}/{feature_name}/{source_type} ldf-a/"
+    else:
+        pred_dir = f"{result_path}/{model_name}/{feature_name}/{source_type}/"
     pred_results = [f for f in os.listdir(pred_dir) if ".csv" in f]
     _interval_average(pred_results, 1, 366)

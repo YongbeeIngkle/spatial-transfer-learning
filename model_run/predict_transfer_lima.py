@@ -30,10 +30,13 @@ def _train_predict(source_type, f_name, near_station_num):
 if __name__ == "__main__":
     source_type = "east-north"
     model_name = "Nnw"
-    feature_name = "NF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
-    ldf_a = False
+    feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
+    ldf_a = True
     nearest_station_num = 12
     result_path = predict_result_path["lima"]
 
-    prediction_folder = f"{result_path}/{model_name}/{feature_name}/{source_type}"
+    if ldf_a:
+        prediction_folder = f"{result_path}/{model_name}/{feature_name}/{source_type} ldf-a/"
+    else:
+        prediction_folder = f"{result_path}/{model_name}/{feature_name}/{source_type}/"
     _train_predict(source_type, feature_name, nearest_station_num)

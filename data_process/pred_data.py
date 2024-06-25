@@ -164,25 +164,27 @@ class LimaPredLdfSet:
         self.file_id = 0
 
     def _list_ldf_files(self):
+        self.pred_file_dir = f"{self.pred_data_path}{self.source_type} nearest{self.near_station_num}/"
         if self.ldf_a:
             self.ldf_file_dir = f"{self.pred_data_path}{self.source_type} nearest{self.near_station_num} ldf_a/"
         else:
-            self.ldf_file_dir = f"{self.pred_data_path}{self.source_type} nearest{self.near_station_num}/"
+            self.ldf_file_dir = self.pred_file_dir
         self.ldf_files = np.sort([x for x in os.listdir(self.ldf_file_dir)])
 
     def _process_data(self):
-        pred_data_path = self.ldf_file_dir + self.ldf_files[self.file_id]
+        pred_data_path = self.pred_file_dir + self.ldf_files[self.file_id]
+        pred_ldf_data_path = self.ldf_file_dir + self.ldf_files[self.file_id]
         if self.feature_name == "NF":
             pred_feature = None
         elif self.feature_name == "LDF":
-            pred_feature = self.feature_compute.compute_pred_ldf(pred_data_path, False)
+            pred_feature = self.feature_compute.compute_pred_ldf(pred_ldf_data_path)
         pred_set = self.feature_compute.combine_pred_input_feature(pred_data_path, pred_feature)
         pred_set["file"] = self.ldf_files[self.file_id]
         return pred_set
 
     def __iter__(self):
         return self
-    
+
     def __next__(self):
         if self.file_id >= len(self.ldf_files):
             raise StopIteration
