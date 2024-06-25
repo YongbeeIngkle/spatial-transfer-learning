@@ -11,3 +11,9 @@ Code, and Supplementary for the paper: _"Spatial Transfer Learning for Estimatin
 7. **result:** Result saving file is contained.
 8. **sample_data:** Contains sample dataset.
 
+## Installation
+In order to set up the environment, you have to install the libraries of requirements.txt.
+If you have installed anaconda, you can easily set up with
+```bash
+conda env create -f requirements.txt
+```
