@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 from data_process.compose import get_in_clusters
@@ -21,8 +20,6 @@ if __name__ == "__main__":
     ldf_a = False
     source_type = "east-north"
 
-    # _monitoring_process(target_station_num)
-    # _whole_map_process()
-
+    _monitoring_process(target_station_num)
     ldf_compose = CaliforniaLdfInputCompose(target_station_num, 0, near_station_num, ldf_a)
     ldf_compose.save(source_type)

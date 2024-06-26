@@ -82,9 +82,11 @@ predict_result_path = {
     d. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
     e. Save Lima whole daily at country_daily_data_path["lima"]. <br/>
 
-3. **Compose and save LDF-input dataset:** Before we run the algorithm codes, we need to compose the LDF-input dataset. Here we explain composing guide of California-Nevada train-test, California-Nevada prediction, and Lima prediction.
+3. **Compose and save LDF-input dataset:** Before we run the algorithm codes, we need to compose the LDF-input dataset. Here we explain composing guide of California-Nevada train-test, California-Nevada prediction, and Lima prediction. <br/>
 *California-Nevada train-test* <br/>
-Run following steps: <br/>
     a. Run data_compose/source_target_split_california.py <br/>
     b. Run data_compose/compose_valid_ldf_input_california.py <br/>
 *California-Nevada predict* <br/>
+    a. Run predict_data_process/california_data_process.py <br/>
+*Lima predict* <br/>
+    a. Run predict_data_process/lima_data_process.py <br/>
