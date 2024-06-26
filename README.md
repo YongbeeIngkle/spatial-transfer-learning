@@ -17,7 +17,24 @@ If you have installed the anaconda, you can easily set up the environment with
 ```bash
 conda env create -f requirements.txt
 ```
-
+We used [vscode](https://code.visualstudio.com/) as python editor and used of following launch.json file.
+```bash
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Base",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceRoot}",
+            "env": {"PYTHONPATH": "${workspaceRoot}"},
+        }
+    ]
+}
+```
 ## Dataset
 Following datasets will be necessary to implement the algorithm. <br/>
 [largeUS_coords_pred.csv](https://drive.google.com/file/d/132FhxRaI3H_mZkZtPBxSKD4aFpFzdGGR/view?usp=sharing) <br/>
@@ -27,7 +44,7 @@ Following datasets will be necessary to implement the algorithm. <br/>
 [Lima whole daily](https://drive.google.com/file/d/1lcxONNVTJFrL6tLatMSRkrjBq0CIR7WN/view?usp=sharing) <br/>
 
 ## Data Pre-Process
-1. **create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory (data_process/data_path.py). Following is an example of data_path.py.
+1. **Create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory (data_process/data_path.py). Following is an example of data_path.py. You can freely set the paths.
 ```python
 pred_whole_us_path = "D:/US_PM25_data/largeUS_coords_pred.csv"
 country_path = {
@@ -58,9 +75,12 @@ predict_result_path = {
 }
 ```
 
-2. **download and locate the dataset:** Please download the Dataset files and locate as follow: <br/>
+2. **Download and locate the dataset:** Please download the Dataset files and locate them as follow: <br/>
     a. Save largeUS_coords_pred.csv at pred_whole_us_path. <br/>
     b. Save us_monitoring.csv at monitoring_country_data_path["usa"]. <br/>
     c. Save california whole daily at country_daily_data_path["california]. <br/>
     d. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
-    e. Save Lima whole daily at country_daily_data_path["lima]. <br/>
+    e. Save Lima whole daily at country_daily_data_path["lima"]. <br/>
+
+3. **Compose and save LDF-input dataset:** In order to obtain the train-test result of California-Nevada, run following steps: <br/>
+    a. Run data_compose/source_target_split_california.py
