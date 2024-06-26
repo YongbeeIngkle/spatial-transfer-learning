@@ -26,8 +26,7 @@ Following datasets will be necessary to implement the algorithm. <br/>
 [Lima2016](https://drive.google.com/file/d/1hRgBhvYJ9295fPq1_pq12OCy29ra8dG_/view?usp=sharing) <br/>
 
 ## Data Pre-process
-1. **create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory.
-Following is an example of data_path.py.
+1. **create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory (data_process/data_path.py). Following is an example of data_path.py.
 ```python
 pred_whole_us_path = "D:/US_PM25_data/largeUS_coords_pred.csv"
 country_path = {

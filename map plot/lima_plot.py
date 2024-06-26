@@ -61,14 +61,14 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
 
     plt.figure(figsize=(6, 6))
     plt.scatter(inbound_lima_pm.index.get_level_values('lon'), inbound_lima_pm.index.get_level_values('lat'), c=inbound_lima_pm, s=12, cmap="rainbow", vmin=14.5, vmax=48.5, marker="o", alpha=0.8)
-    cbar = plt.colorbar()
-    cbar.ax.tick_params(labelsize=17)
+    # cbar = plt.colorbar()
+    # cbar.ax.tick_params(labelsize=17)
     plt.axis("off")
     plt.show()
     # plt.savefig(f'{pred_dir}date{start_date}-{end_date} average lima-bound.png')
     # plt.close('all')
 
-    # _plot_lima_map(inbound_lima_pm)
+    _plot_lima_map(inbound_lima_pm)
 
 if __name__=='__main__':
     model_name = "Nnw"

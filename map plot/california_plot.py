@@ -44,11 +44,11 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
     # cbar = plt.colorbar()
     # cbar.ax.tick_params(labelsize=17)
     plt.axis("off")
-    # plt.show()
-    plt.savefig(f'{pred_dir}figures/date{start_date}-{end_date} average.png')
-    plt.close('all')
+    plt.show()
+    # plt.savefig(f'{pred_dir}figures/date{start_date}-{end_date} average.png')
+    # plt.close('all')
 
-    # _plot_california_map(pm_mean)
+    _plot_california_map(pm_mean)
 
 if __name__=='__main__':
     model_name = "Nnw"
