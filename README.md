@@ -17,7 +17,7 @@ If you have installed the anaconda, you can easily set up the environment with
 ```bash
 conda env create -f requirements.txt
 ```
-We used [vscode](https://code.visualstudio.com/) as python editor and used of following launch.json file.
+We used [vscode](https://code.visualstudio.com/) as python editor and used following launch.json file.
 ```bash
 {
     "version": "0.2.0",
