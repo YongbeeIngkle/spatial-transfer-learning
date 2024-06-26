@@ -20,12 +20,13 @@ conda env create -f requirements.txt
 
 ## Dataset
 Following datasets will be necessary to implement the algorithm. <br/>
+[largeUS_coords_pred.csv](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing) <br/>
 [us_monitoring.csv](https://drive.google.com/file/d/1G_nd7PGVF51kL-PtJVYlrIQ1UBmhd0Vd/view?usp=drive_link) <br/>
 [california whole daily](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing) <br/>
 [lima_monitoring.csv](https://drive.google.com/file/d/1m3vo-fdFPsI0nUxhewav0z3U-vlr4ENR/view?usp=sharing) <br/>
-[Lima2016](https://drive.google.com/file/d/1hRgBhvYJ9295fPq1_pq12OCy29ra8dG_/view?usp=sharing) <br/>
+[Lima whole daily](https://drive.google.com/file/d/1lcxONNVTJFrL6tLatMSRkrjBq0CIR7WN/view?usp=sharing) <br/>
 
-## Data Pre-process
+## Data Pre-Process
 1. **create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory (data_process/data_path.py). Following is an example of data_path.py.
 ```python
 pred_whole_us_path = "D:/US_PM25_data/largeUS_coords_pred.csv"
@@ -34,7 +35,6 @@ country_path = {
     "california":"D:/US_PM25_data/california/"
 }
 country_daily_data_path = {
-    "usa": "D:/US_PM25_data/california/daily_whole_data/",
     "lima":"D:/US_PM25_data/Lima/Lima whole daily/",
     "california":"D:/US_PM25_data/california/california whole daily/"
 }
@@ -57,3 +57,10 @@ predict_result_path = {
     "california": "D:/US_PM25_data/california/predictions/"
 }
 ```
+
+2. **download and locate the dataset:** Please download the Dataset files and locate as follow: <br/>
+    a. Save largeUS_coords_pred.csv at pred_whole_us_path. <br/>
+    b. Save us_monitoring.csv at monitoring_country_data_path["usa"]. <br/>
+    c. Save california whole daily at country_daily_data_path["california]. <br/>
+    d. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
+    e. Save Lima whole daily at country_daily_data_path["lima]. <br/>
