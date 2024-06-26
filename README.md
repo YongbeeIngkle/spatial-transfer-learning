@@ -85,6 +85,6 @@ predict_result_path = {
 3. **Compose and save LDF-input dataset:** Before we run the algorithm codes, we need to compose the LDF-input dataset. Here we explain composing guide of California-Nevada train-test, California-Nevada prediction, and Lima prediction.
 *California-Nevada train-test* <br/>
 Run following steps: <br/>
-    a. Run data_compose/source_target_split_california.py
-    b. Run data_compose/compose_valid_ldf_input_california.py
+    a. Run data_compose/source_target_split_california.py <br/>
+    b. Run data_compose/compose_valid_ldf_input_california.py <br/>
 *California-Nevada predict* <br/>
