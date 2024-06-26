@@ -1,5 +1,5 @@
 # Spatial-Transfer-Learning
-Code, and Supplementary for the paper: _"Spatial Transfer Learning for Estimating PM2.5 in Data-poor Regions"_ submitted to ECML PKDD 2024
+Code, and Supplementary for the paper: _"Spatial Transfer Learning for Estimating PM2.5 in Data-poor Regions"_ accepted at ECML PKDD 2024
 
 ## Folders Description:
 1. **country_data_process:** Transforms the California-Nevada and Lima datasets for estimation on the whole area.
