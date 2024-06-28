@@ -12,10 +12,10 @@ Code, and Supplementary for the paper: _"Spatial Transfer Learning for Estimatin
 8. **sample_data:** Contains sample dataset.
 
 ## Environment Installation
-In order to set up the environment, you have to install the packages of requirements.txt. <br/>
-If you have installed the anaconda, you can easily set up the environment with
+In order to set up the environment, you have to install the packages of environment.yml. <br/>
+If you have installed [anaconda](https://docs.anaconda.com/anaconda/install/), you can easily install the packages by 
 ```bash
-conda env create -f requirements.txt
+conda env create -f environment.yml
 ```
 We used [vscode](https://code.visualstudio.com/) as python editor and used following launch.json file.
 ```bash
