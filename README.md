@@ -38,6 +38,7 @@ We used [vscode](https://code.visualstudio.com/) as python editor and used follo
 ## Dataset
 Following datasets will be necessary to implement the algorithm. <br/>
 [largeUS_coords_pred.csv](https://drive.google.com/file/d/132FhxRaI3H_mZkZtPBxSKD4aFpFzdGGR/view?usp=sharing) <br/>
+[source_cmaq.npy](https://drive.google.com/file/d/1wfJNV_rTtNlBENgCQpsdlZr6Xd1jFDky/view?usp=sharing) <br/>
 [us_monitoring.csv](https://drive.google.com/file/d/1G_nd7PGVF51kL-PtJVYlrIQ1UBmhd0Vd/view?usp=drive_link) <br/>
 [california whole daily](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing) <br/>
 [lima_monitoring.csv](https://drive.google.com/file/d/1m3vo-fdFPsI0nUxhewav0z3U-vlr4ENR/view?usp=sharing) <br/>
@@ -77,10 +78,11 @@ predict_result_path = {
 
 2. **Download and locate the dataset:** Please download the Dataset files and locate them as follow: <br/>
     a. Save largeUS_coords_pred.csv at pred_whole_us_path. <br/>
-    b. Save us_monitoring.csv at monitoring_country_data_path["usa"]. <br/>
-    c. Save california whole daily at country_daily_data_path["california]. <br/>
-    d. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
-    e. Save Lima whole daily at country_daily_data_path["lima"]. <br/>
+    b. Save source_cmaq.npy in country_compose_data_path["california] directory. <br/>
+    c. Save us_monitoring.csv at monitoring_country_data_path["usa"]. <br/>
+    d. Save california whole daily at country_daily_data_path["california]. <br/>
+    e. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
+    f. Save Lima whole daily at country_daily_data_path["lima"]. <br/>
 
 3. **Compose and save LDF-input dataset:** Before we run the algorithm codes, we need to compose the LDF-input dataset. Here we explain composing guide of California-Nevada train-test, California-Nevada prediction, and Lima prediction. <br/>
     *California-Nevada train-test*: <br/>
