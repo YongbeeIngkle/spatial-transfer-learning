@@ -1,4 +1,4 @@
-name: spatial_transfer_learning_env
+name: PM25_env
 channels:
   - conda-forge
   - defaults
@@ -63,7 +63,7 @@ dependencies:
     - fiona==1.9.5
     - flatbuffers==23.5.26
     - fonttools==4.43.0
-    - gast==0.4.0
+    - gast==0.5.4
     - geopandas==0.14.2
     - google-auth==2.23.2
     - google-auth-oauthlib==1.0.0
