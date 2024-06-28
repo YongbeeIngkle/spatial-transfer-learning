@@ -92,9 +92,14 @@ predict_result_path = {
         a. Run predict_data_process/lima_data_process.py <br/>
 
 4. **Run algorithm:** After composing the LDF-input dataset, you can run the algorithms. <br/>
-    *California-Nevada train-test* <br/>
-        a. Run model_run/train_test_transfer_california.py <br/>
-    *California-Nevada predict* <br/>
-        a. Run model_run/predict_transfer_california.py <br/>
+    *California-Nevada train-test*: Run model_run/train_test_transfer_california.py <br/>
+    *California-Nevada predict*: Run model_run/predict_transfer_california.py <br/>
+    *Lima predict*: Run model_run/predict_transfer_lima.py <br/>
+
+5. **Visualize results:** When you complete the algorithm running, you can check the prediction results with the following guide. <br/>
+    *USA whole map monitoring site visualize* <br/>
+        a. Run map_plot/data map plot.py <br/>
+    *California-Nevada visualize* <br/>
+        a. Run map_plot/california_plot.py <br/>
     *Lima predict* <br/>
-        a. Run model_run/predict_transfer_lima.py <br/>
+        a. Run map_plot/lima_plot.py <br/>

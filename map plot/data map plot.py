@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_process.data_path import pred_whole_us_path, monitoring_country_data_path, compose_data_path
-from data_process.tag_info import whole_tag_names
+from data_process.data_path import pred_whole_us_path, monitoring_country_data_path, country_compose_data_path
+from data_process.tag_info import usa_whole_tags
 from data_process.compose import get_in_clusters
 
 def _source_target_split(coord_cluster, rid):
@@ -25,8 +25,8 @@ class SingleAnalyzerClimate:
         self.east_north_rid = 3
 
     def get_target_coords(self):
-        train_test_data_id = get_in_clusters(compose_data_path, self.train_num, 20)
-        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[whole_tag_names]
+        train_test_data_id = get_in_clusters(country_compose_data_path["california"], self.train_num, 20)
+        monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[usa_whole_tags]
         all_target_sets = {}
         for split_id in train_test_data_id.keys():
             train_test_split_id = train_test_data_id[split_id]
@@ -87,14 +87,14 @@ class SingleAnalyzerClimate:
                 plt.axvline(0, linestyle='-', color='r', alpha=0.4)
             plt.legend(bbox_to_anchor=(0.65, 1.05), loc="upper left", prop={'size': 11, 'weight':'bold'})
             plt.axis('off')
-            # plt.show()
-            plt.savefig(fig_savedir)
-            plt.close()
+            plt.show()
+            # plt.savefig(fig_savedir)
+            # plt.close()
 
 if __name__=='__main__':
-    sp = 15
+    sp = 9
     # _save_whole_coord_rid()
-    monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[whole_tag_names]
+    monitoring_whole_data = pd.read_csv(monitoring_country_data_path["usa"])[usa_whole_tags]
     coord_whole_data = pd.read_csv(pred_whole_us_path)
     whole_coord_rid = coord_whole_data.drop_duplicates().reset_index(drop=True)[['cmaq_x', 'cmaq_y', 'rid']]
 
