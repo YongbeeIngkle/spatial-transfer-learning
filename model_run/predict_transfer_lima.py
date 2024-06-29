@@ -8,7 +8,7 @@ def _compose_input_label(s_type, f_name, near_station_number):
     if f_name == "NF":
         all_features = None
     elif f_name == "LDF":
-        source_feature, train_target_feature, valid_feature = feature_compute.compute_train_ldf(False)
+        source_feature, train_target_feature, valid_feature = feature_compute.compute_train_ldf(ldf_train)
         all_features = {"source": source_feature, "train_target": train_target_feature, "valid": valid_feature}
     source_set, train_target_set, _ = feature_compute.combine_train_input_feature(all_features)
     return source_set, train_target_set
@@ -31,6 +31,7 @@ if __name__ == "__main__":
     model_name = "Nnw"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
     ldf_a = False
+    ldf_train = True
     nearest_station_num = 12
     result_path = predict_result_path["lima"]
 
