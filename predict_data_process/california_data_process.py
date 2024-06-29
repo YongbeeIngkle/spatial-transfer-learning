@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from data_process.compose import get_in_clusters
 from data_process.tag_info import usa_whole_tags
-from data_process.data_path import monitoring_country_data_path, country_daily_data_path, monitoring_country_data_path, country_compose_data_path
+from data_process.data_path import monitoring_country_data_path, monitoring_country_data_path, country_compose_data_path
 from data_process.pred_data import CaliforniaLdfInputCompose
 
 def _monitoring_process(target_station_num: int):
