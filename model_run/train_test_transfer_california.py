@@ -1,7 +1,6 @@
-from model.regressor import CaliforniaSplitLdfCompose
+from model.regressor import CaliforniaSplitLdfCompose, save_accuracy
 from model.adapt import GbrTrainTest, NnFeatureTrainTest, NnParameterTrainTest, algorithm_class
 from model.classic import TrainTestTransferData
-from result.save import save_accuracy
 
 def _compose_input_label(s_type, f_name, near_station_number, t_num, split_id):
     feature_compute = CaliforniaSplitLdfCompose(s_type, near_station_number, t_num, ldf_a)

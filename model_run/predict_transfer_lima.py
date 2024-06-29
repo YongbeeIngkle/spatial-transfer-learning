@@ -1,8 +1,7 @@
 from data_process.data_path import predict_result_path
 from data_process.pred_data import LimaPredLdfSet
-from model.regressor import LimaPredictLdfCompose
+from model.regressor import LimaPredictLdfCompose, save_pred
 from model.adapt import GbrTrainTest
-from result.save import save_pred
 
 def _compose_input_label(s_type, f_name, near_station_number):
     feature_compute = LimaPredictLdfCompose(s_type, near_station_number, ldf_a)
