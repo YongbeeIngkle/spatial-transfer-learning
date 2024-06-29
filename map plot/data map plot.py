@@ -11,11 +11,6 @@ def _source_target_split(coord_cluster, rid):
     source_coords = coord_cluster.loc[coord_cluster["rid"] != rid]
     return {"source": source_coords, "target": target_coords}
 
-def _save_whole_coord_rid():
-    day1_data = pd.read_csv("D:/California-Encoder-Transfer/data/satellite/us-2011-satellite-day-1.csv")
-    coord_whole_data = day1_data[["cmaq_x", "cmaq_y", "cmaq_id", "rid"]]
-    coord_whole_data.to_csv(pred_whole_us_path, index=False)
-
 class SingleAnalyzerClimate:
     def __init__(self, monitoring_data, whole_coord_rid, train_num):
         self.monitoring_data = monitoring_data

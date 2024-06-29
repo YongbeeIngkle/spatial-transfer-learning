@@ -2,11 +2,11 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_process.data_path import predict_result_path
+from data_process.data_path import predict_result_path, monitoring_country_data_path
 
 def average_pm_values():
     # monitoring_dt = pd.read_csv("D:/US_PM25_data/california/california_station9_monitoring.csv")
-    monitoring_dt = pd.read_csv("D:/US_PM25_data/california/california_whole_monitoring.csv")
+    monitoring_dt = pd.read_csv(monitoring_country_data_path["california_whole"])
     unique_coords = np.unique(monitoring_dt[["cmaq_x", "cmaq_y"]], axis=0)
     all_coord_pm = pd.DataFrame(unique_coords, columns=["cmaq_x", "cmaq_y"])
     all_coord_pm["pm25_value"] = np.zeros(len(all_coord_pm))
