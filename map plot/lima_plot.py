@@ -74,7 +74,7 @@ if __name__=='__main__':
     model_name = "Nnw"
     source_type = "whole"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
-    ldf_a = True
+    ldf_a = False
     nearest_station_num = 12
     result_path = predict_result_path["lima"]
 
