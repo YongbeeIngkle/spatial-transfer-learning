@@ -13,7 +13,7 @@ def _monitoring_process():
 
 if __name__ == "__main__":
     near_station_num = 12
-    ldf_a = True
+    ldf_a = False
     source_type = "east-north"
 
     _monitoring_process()

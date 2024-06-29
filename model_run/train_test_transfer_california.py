@@ -16,7 +16,7 @@ if __name__ == "__main__":
     source_type = "east-north" ## The area of source -- east, east-north
     model_name = "Nnw"
     feature_name = "LDF" ## LDF: Latent Dependency Factor, NF: no feature
-    ldf_a = True
+    ldf_a = False
 
     ldf_train = True
     near_station_number = 12 # 4, 8, 12, 16
