@@ -72,7 +72,7 @@ def _interval_average(pred_files: list, start_date: int, end_date: int):
 
 if __name__=='__main__':
     model_name = "Nnw"
-    source_type = "east-north"
+    source_type = "whole"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
     ldf_a = True
     nearest_station_num = 12
