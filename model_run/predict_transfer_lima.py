@@ -27,7 +27,7 @@ def _train_predict(source_type, f_name, near_station_num):
         save_pred(pred_cmaq, pred_result, prediction_folder, pred_data["file"])
 
 if __name__ == "__main__":
-    source_type = "east-north"
+    source_type = "whole"
     model_name = "Nnw"
     feature_name = "LDF" ## what type of characeristic feature is to be produced -- SWA, DWA, LDF
     ldf_a = False
