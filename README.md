@@ -44,7 +44,7 @@ Following datasets will be necessary to implement the algorithm. <br/>
 [california whole daily](https://drive.google.com/file/d/1_2BYE8ARP3dN0GtQlSz7CtvDtKKNPB-w/view?usp=sharing) <br/>
 [lima_monitoring.csv](https://drive.google.com/file/d/1m3vo-fdFPsI0nUxhewav0z3U-vlr4ENR/view?usp=sharing) <br/>
 [Lima whole daily](https://drive.google.com/file/d/1lcxONNVTJFrL6tLatMSRkrjBq0CIR7WN/view?usp=sharing) <br/>
-[PER_adm2.shp](https://drive.google.com/file/d/14bsdvacSz_pyhLYtNfW4zRt8vcXYZqBZ/view?usp=sharing) <br/>
+[PER_adm2.zip](https://drive.google.com/file/d/17KkYAv52HqKkwWxEq2ROmwYseUd9PAYo/view?usp=sharing) <br/>
 
 ## Data Pre-Process
 1. **Create data_path.py:** All data path information will be referenced from data_path.py file. Therefore, you have to create data_path.py file in data_process directory (data_process/data_path.py). Following is an example of data_path.py. You can freely set the paths.
@@ -85,7 +85,7 @@ predict_result_path = {
     d. Save california whole daily at country_daily_data_path["california"]. <br/>
     e. Save lima_monitoring.csv at monitoring_country_data_path["lima"]. <br/>
     f. Save Lima whole daily at country_daily_data_path["lima"]. <br/>
-    g. Save PER_adm2.shp in country_path["lima"] directory. <br/>
+    g. Download PER_adm2.zip and unzip in country_path["lima"] directory. <br/>
 
 3. **Compose and save LDF-input dataset:** Before we run the algorithm codes, we need to compose the LDF-input dataset. Here we explain composing guide of California-Nevada train-test, California-Nevada prediction, and Lima prediction. <br/>
     *California-Nevada train-test*: <br/>
