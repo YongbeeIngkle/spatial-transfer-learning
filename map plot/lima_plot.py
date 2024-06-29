@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 from geopandas.tools import sjoin
 from shapely.geometry import Point
-from data_process.data_path import predict_result_path
+from data_process.data_path import predict_result_path, country_path, monitoring_country_data_path
 
 def average_pm_values():
-    monitoring_dt = pd.read_csv("D:/US_PM25_data/Lima/lima_monitoring.csv")
+    monitoring_dt = pd.read_csv(monitoring_country_data_path["lima"])
     unique_coords = np.unique(monitoring_dt[["lon", "lat"]], axis=0)
     all_coord_pm = pd.DataFrame(unique_coords, columns=["lon", "lat"])
     all_coord_pm["pm25_value"] = np.zeros(len(all_coord_pm))
@@ -27,7 +27,8 @@ def _plot_lima_map(inbound_lima_pm):
     plt.show()
 
 def _find_inbound_lima(pm_mean: pd.DataFrame):
-    peru_map_df = gpd.read_file('D:/US_PM25_data/Lima/Peru_shape2/PER_adm2.shp')
+    shp_dir = country_path["lima"]
+    peru_map_df = gpd.read_file(f'{shp_dir}PER_adm2.shp')
     lima_map_df = peru_map_df[peru_map_df['NAME_2'] == 'Lima']
     geometry = [Point(xy) for xy in zip(pm_mean.index.get_level_values('lon'), pm_mean.index.get_level_values('lat'))]
     gdf = gpd.GeoDataFrame(pm_mean.values, crs="EPSG:4326", geometry=geometry, columns=["pm25"])
